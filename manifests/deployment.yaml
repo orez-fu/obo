@@ -13,8 +13,9 @@ spec:
     metadata:
       labels:
         app: obo
-  containers:
-    - name: "obo-app"
-      image: obo:v0
-      ports:
-        - containerPort: 8080
+    spec:
+      containers:
+        - name: "obo-app"
+          image: obo:v0
+          ports:
+            - containerPort: 8080
