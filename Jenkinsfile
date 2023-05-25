@@ -31,7 +31,7 @@ pipeline {
           sh "rm $filename"
           writeYaml file: filename, data: data
         }
-        withKubeConfig([credentialsId: 'kubeconfig', serverUrl: 'https://192.168.49.2:8443']) {
+        withKubeConfig([credentialsId: 'kubeconfig', serverUrl: 'https://10.0.2.15:8443']) {
           sh 'curl -LO "https://storage.googleapis.com/kubernetes-release/release/v1.20.5/bin/linux/amd64/kubectl"'  
           sh 'chmod u+x ./kubectl'  
           sh './kubectl apply -f manifests'
