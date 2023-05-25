@@ -27,7 +27,7 @@ pipeline {
           sh "echo 'Deploy to kubernetes'"
           def filename = 'manifests/deployment.yaml'
           def data = readYaml file: filename
-          data.spec.template.spec.containers[0].image = "obo:v1.${BUILD_NUMBER}"
+          data.spec.template.spec.containers[0].image = "orezfu/obo:v1.${BUILD_NUMBER}"
           sh "rm $filename"
           writeYaml file: filename, data: data
           sh "cat $filename"
