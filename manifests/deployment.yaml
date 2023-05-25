@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: obo-app
+  labels:
+    app: obo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: obo
+  template:
+    metadata:
+      labels:
+        app: obo
+  containers:
+    - name: "obo-app"
+      image: obo:v0
+      ports:
+        - containerPort: 8080

@@ -19,5 +19,20 @@ pipeline {
         '''
       }
     }
+
+
+    stage('Deploy') {
+      steps {
+        sh "echo 'Deploy to kubernetes'"
+        def filename = 'manifests/deployment.yaml'
+        def data = readYaml file: filename
+        data.spec.containers[0].image = "obo:v1.${BUILD_NUMBER}"
+        sh "rm $filename"
+        writeYaml file: filename, data: data
+        withKubeConfig([credentialsId: 'kubeconfig', serverUrl: '10.0.2.15']) {
+          sh 'kubectl apply -f manifests'
+        }
+      }
+    }
   }
 }
