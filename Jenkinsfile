@@ -5,7 +5,7 @@ pipeline {
     DOCKER_REGISTRY_PASSWORD = credentials('DOCKER_REGISTRY_PASSWORD')
   }
   parameters {
-    string(name: 'IMAGE_VERSION', default: 'v0.0.0')
+    string(name: 'IMAGE_VERSION', defaultValue: 'v0.0.0')
   }
 
   stages {
