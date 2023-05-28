@@ -49,8 +49,31 @@ pipeline {
       }
     }
 
+    stage('Deploy to development environment') {
+      when {
+        branch 'develop'
+      }
+      steps {
+        script {
+          sh "echo 'Deploy to kubernetes'"
+          def filename = 'manifests/deployment.yaml'
+          def data = readYaml file: filename
+          data.spec.template.spec.containers[0].image = "orezfu/obo:v1.${BUILD_NUMBER}-dev"
+          sh "rm $filename"
+          writeYaml file: filename, data: data
+          sh "cat $filename"
+        }
+        withKubeConfig([credentialsId: 'kubeconfig', serverUrl: 'https://10.0.2.15:6443']) {
+          sh 'curl -LO "https://storage.googleapis.com/kubernetes-release/release/v1.20.5/bin/linux/amd64/kubectl"'  
+          sh 'chmod u+x ./kubectl'  
+          sh './kubectl apply -f manifests -n dev'
+        }
+      }
+    }
+
     stage('Push Docker Image in release') {
       when {
+        beforeInput true
         branch 'release'
       }
       input {
@@ -71,28 +94,6 @@ pipeline {
           echo "Set variable to use in next stage"
           env.IMAGE_VERSION = ${IMAGE_TAG}
         '''
-      }
-    }
-
-    stage('Deploy to development environment') {
-      when {
-        branch 'develop'
-      }
-      steps {
-        script {
-          sh "echo 'Deploy to kubernetes'"
-          def filename = 'manifests/deployment.yaml'
-          def data = readYaml file: filename
-          data.spec.template.spec.containers[0].image = "orezfu/obo:v1.${BUILD_NUMBER}-dev"
-          sh "rm $filename"
-          writeYaml file: filename, data: data
-          sh "cat $filename"
-        }
-        withKubeConfig([credentialsId: 'kubeconfig', serverUrl: 'https://10.0.2.15:6443']) {
-          sh 'curl -LO "https://storage.googleapis.com/kubernetes-release/release/v1.20.5/bin/linux/amd64/kubectl"'  
-          sh 'chmod u+x ./kubectl'  
-          sh './kubectl apply -f manifests -n dev'
-        }
       }
     }
 
