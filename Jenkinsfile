@@ -71,7 +71,7 @@ pipeline {
           echo "Update service Node Port"
           def servicefile = 'manifests/service.yaml'
           def servicedata = readYaml file: servicefile
-          servicedata.spec.ports[0].nodePort = "30190"
+          servicedata.spec.ports[0].nodePort = 30190
           sh "rm $servicefile"
           writeYaml file: servicefile, data: servicedata
         }
@@ -129,7 +129,7 @@ pipeline {
           echo "Update service Node Port"
           def servicefile = 'manifests/service.yaml'
           def servicedata = readYaml file: servicefile
-          servicedata.spec.ports[0].nodePort = "30190"
+          servicedata.spec.ports[0].nodePort = 30290
           sh "rm $servicefile"
           writeYaml file: servicefile, data: servicedata
         }
