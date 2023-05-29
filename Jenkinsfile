@@ -42,10 +42,10 @@ pipeline {
       when {
         branch 'develop'
       }
+      // Đánh tag dev cho image
       steps {
         sh '''
           echo "Tag image to dev and push image"
-          // Đánh tag dev cho image
           docker tag orezfu/obo:v1.${BUILD_NUMBER} orezfu/obo:v1.${BUILD_NUMBER}-dev
           echo ${DOCKER_REGISTRY_PASSWORD} | docker login -u ${DOCKER_REGISTRY_USERNAME} --password-stdin
           docker push "orezfu/obo:v1.${BUILD_NUMBER}-dev"
