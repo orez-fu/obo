@@ -88,9 +88,9 @@ pipeline {
       steps {
         sh '''
           echo "Tag image to releae and push image"
-          docker tag <dockerhub_account>/obo:v1.${BUILD_NUMBER} orezfu/obo:${TAG_NAME}
+          docker tag orezfu/obo:v1.${BUILD_NUMBER} orezfu/obo:${TAG_NAME}
           echo ${DOCKER_REGISTRY_PASSWORD} | docker login -u ${DOCKER_REGISTRY_USERNAME} --password-stdin
-          docker push "<dockerhub_account>/obo:${TAG_NAME}"
+          docker push "orezfu/obo:${TAG_NAME}"
         '''
       }
     }
