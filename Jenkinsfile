@@ -1,11 +1,9 @@
 pipeline {
   agent any
-
   environment {
     DOCKER_REGISTRY_USERNAME = credentials('DOCKER_REGISTRY_USERNAME')
     DOCKER_REGISTRY_PASSWORD = credentials('DOCKER_REGISTRY_PASSWORD')
   }
-
 
   // Stage ví dụ để nhánh bugfix và feature sẽ thực thi quá trình test ở CI.
   stages {
@@ -25,7 +23,7 @@ pipeline {
       when {
         anyOf {
           branch 'develop'
-          branch 'release'
+          tag pattern: "^v(\\d+(?:\\.\\d+)*)\$", comparator: "REGEXP" 
         }
       }
       steps {
@@ -82,34 +80,38 @@ pipeline {
       }
     }
 
-    // Nếu là nhánh release, yêu cầu nhập vào version cho ứng dụng để đánh tag và triển khai.
-    stage('Deploy to release environment') {
+    // Nếu là tag, yêu cầu nhập vào version cho ứng dụng để đánh tag và triển khai.
+    stage('Push Docker Image in release') {
       when {
-        beforeInput true
-        branch 'release'
-      }
-      // Yêu cầu nhập vào tag
-      input {
-        message "Enter release version... (example: v1.2.3)"
-        ok "Confirm"
-        parameters {
-          string(name: "IMAGE_TAG", defaultValue: "v0.0.0")
-        }
+        tag pattern: "^v(\\d+(?:\\.\\d+)*)\$", comparator: "REGEXP"
       }
       steps {
         sh '''
           echo "Tag image to releae and push image"
-          docker tag orezfu/obo:v1.${BUILD_NUMBER} orezfu/obo:${IMAGE_TAG}
+          docker tag <dockerhub_account>/obo:v1.${BUILD_NUMBER} orezfu/obo:${TAG_NAME}
           echo ${DOCKER_REGISTRY_PASSWORD} | docker login -u ${DOCKER_REGISTRY_USERNAME} --password-stdin
-          docker push "orezfu/obo:${IMAGE_TAG}"
+          docker push "<dockerhub_account>/obo:${TAG_NAME}"
         '''
-        // Triển khai tới môi trường production
+      }
+    }
+
+    stage('Deploy to release environment') {
+      when {
+        // beforeInput true
+        tag pattern: "^v(\\d+(?:\\.\\d+)*)\$", comparator: "REGEXP"
+      }
+      // Xac nhan deploy
+      //input {
+      //  message "Approve to deploy PRD?"
+      //  ok "Confirm"
+      //}
+      steps {
         script {
           sh "echo 'Deploy to kubernetes'"
           echo "Update deployment.yaml"
           def filename = 'manifests/deployment.yaml'
           def data = readYaml file: filename
-          data.spec.template.spec.containers[0].image = "orezfu/obo:${IMAGE_TAG}"
+          data.spec.template.spec.containers[0].image = "orezfu/obo:${TAG_NAME}"
           sh "rm $filename"
           writeYaml file: filename, data: data
           sh "cat $filename"
