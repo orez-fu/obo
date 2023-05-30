@@ -24,3 +24,5 @@ Truy cập ```/admin``` để vào trang admin.
 ### Built with
 - [Java Spring](https://spring.io/) - The web framework used
 - [Maven](https://mvnrepository.com/) - Dependency Management
+prepare new release
+prepare new release 2
