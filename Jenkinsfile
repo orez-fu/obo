@@ -34,7 +34,7 @@ pipeline {
           writeYaml file: filename, data: data
           sh "cat $filename"
         }
-        withCredentials([gitUsernamePassword(credentialsId: '', gitToolName: 'Default')]) {
+        withCredentials([gitUsernamePassword(credentialsId: 'jenkins_github_pac', gitToolName: 'Default')]) {
           sh '''
             git add dev/deployment.yaml
             git commit -am "update image to tag v1.${BUILD_NUMBER}"
