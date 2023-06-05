@@ -27,8 +27,8 @@ pipeline {
           sh 'cd obo-manifest'
         }
         script {
-          sh "echo 'Deploy to kubernetes'"
-          def filename = 'dev/deployment.yaml'
+          sh "echo 'Update deployment manifest'"
+          def filename = 'obo-manifest/dev/deployment.yaml'
           def data = readYaml file: filename
           data.spec.template.spec.containers[0].image = "orezfu/obo:v1.${BUILD_NUMBER}"
           sh "rm $filename"
@@ -37,6 +37,7 @@ pipeline {
         }
         withCredentials([gitUsernamePassword(credentialsId: 'jenkins_github_pac', gitToolName: 'Default')]) {
           sh '''
+            cd obo-manifest
             git add dev/deployment.yaml
             git commit -am "update image to tag v1.${BUILD_NUMBER}"
             git push origin master
