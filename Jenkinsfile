@@ -24,10 +24,11 @@ pipeline {
         withCredentials([gitUsernamePassword(credentialsId: 'jenkins_github_pac', gitToolName: 'Default')]) {
           sh 'rm -rf obo-manifest'
           sh 'git clone https://github.com/orez-fu/obo-manifest.git'
+          sh 'cd obo-manifest'
         }
         script {
           sh "echo 'Deploy to kubernetes'"
-          def filename = 'obo-manifest/dev/deployment.yaml'
+          def filename = 'dev/deployment.yaml'
           def data = readYaml file: filename
           data.spec.template.spec.containers[0].image = "orezfu/obo:v1.${BUILD_NUMBER}"
           sh "rm $filename"
