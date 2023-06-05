@@ -38,6 +38,8 @@ pipeline {
         withCredentials([gitUsernamePassword(credentialsId: 'jenkins_github_pac', gitToolName: 'Default')]) {
           sh '''
             cd obo-manifest
+            git config user.email "jenkins@example.com"
+            git config user.name "Jenkins"
             git add dev/deployment.yaml
             git commit -am "update image to tag v1.${BUILD_NUMBER}"
             git push origin master
