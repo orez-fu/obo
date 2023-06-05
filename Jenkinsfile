@@ -22,7 +22,7 @@ pipeline {
     stage('Deploy') {
       steps {
         withCredentials([gitUsernamePassword(credentialsId: 'jenkins_github_pac', gitToolName: 'Default')]) {
-          git clone https://github.com/orez-fu/obo-manifest.git
+          sh 'git clone https://github.com/orez-fu/obo-manifest.git'
         }
         script {
           sh "echo 'Deploy to kubernetes'"
@@ -34,9 +34,11 @@ pipeline {
           sh "cat $filename"
         }
         withCredentials([gitUsernamePassword(credentialsId: '', gitToolName: 'Default')]) {
-          git add dev/deployment.yaml
-          git commit -am "update image to tag v1.${BUILD_NUMBER}"
-          git push origin master
+          sh '''
+            git add dev/deployment.yaml
+            git commit -am "update image to tag v1.${BUILD_NUMBER}"
+            git push origin master
+          '''
         }
       }
     }
