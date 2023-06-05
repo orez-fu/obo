@@ -22,6 +22,7 @@ pipeline {
     stage('Deploy') {
       steps {
         withCredentials([gitUsernamePassword(credentialsId: 'jenkins_github_pac', gitToolName: 'Default')]) {
+          sh 'rm -rf obo-manifest'
           sh 'git clone https://github.com/orez-fu/obo-manifest.git'
         }
         script {
