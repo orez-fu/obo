@@ -19,21 +19,30 @@ pipeline {
         '''
       }
     }
-    stage('Deploy') {
+    stage('Update Repo Manifest') {
       steps {
+        withCredentials([gitUsernamePassword(credentialsId: 'jenkins_github_pac', gitToolName: 'Default')]) {
+          sh 'rm -rf obo-manifest'
+          sh 'git clone https://github.com/orez-fu/obo-manifest.git'
+        }
         script {
-          sh "echo 'Deploy to kubernetes'"
-          def filename = 'manifests/deployment.yaml'
+          sh "echo 'Update deployment manifest'"
+          def filename = 'obo-manifest/dev/deployment.yaml'
           def data = readYaml file: filename
           data.spec.template.spec.containers[0].image = "orezfu/obo:v1.${BUILD_NUMBER}"
           sh "rm $filename"
           writeYaml file: filename, data: data
           sh "cat $filename"
         }
-        withKubeConfig([credentialsId: 'kubeconfig', serverUrl: 'https://10.0.2.15:6443']) {
-          sh 'curl -LO "https://storage.googleapis.com/kubernetes-release/release/v1.20.5/bin/linux/amd64/kubectl"'  
-          sh 'chmod u+x ./kubectl'  
-          sh './kubectl apply -f manifests'
+        withCredentials([gitUsernamePassword(credentialsId: 'jenkins_github_pac', gitToolName: 'Default')]) {
+          sh '''
+            cd obo-manifest
+            git config user.email "jenkins@example.com"
+            git config user.name "Jenkins"
+            git add dev/deployment.yaml
+            git commit -am "update image to tag v1.${BUILD_NUMBER}"
+            git push origin master
+          '''
         }
       }
     }
