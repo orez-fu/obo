@@ -6,8 +6,8 @@ pipeline {
   }
 
 
+  // Stage ví dụ để nhánh bugfix và feature sẽ thực thi quá trình test ở CI.
   stages {
-    // Stage ví dụ để nhánh bugfix và feature sẽ thực thi quá trình test ở CI.
     stage('Install dependencies and Test') {
       steps {
         echo "pseudo install dependencies"
@@ -19,11 +19,12 @@ pipeline {
       }
     }
 
-    stage('Build') {
+    // Stage build Docker image, chỉ áp dụng cho  2 nhánh develop và release
+    stage('Build Docker Image') {
       when {
         anyOf {
-          branch "develop"
-          branch "release"
+          branch 'develop'
+          branch 'release'
         }
       }
       steps {
@@ -34,6 +35,7 @@ pipeline {
       }
     }
 
+   // Với pipeline của nhánh develop, push docker image lên Docker Hub
     stage('Push Docker Image in develop') {
       when {
         branch 'develop'
@@ -49,7 +51,8 @@ pipeline {
       }
     }
 
-     stage('Deploy to development environment') {
+    // Deploy tới môi trường development, tương ứng là namespace dev trên Kubernetes
+    stage('Deploy to development environment') {
       when {
         branch 'develop'
       }
@@ -123,6 +126,5 @@ pipeline {
         }
       }
     }
-
   }
 }
